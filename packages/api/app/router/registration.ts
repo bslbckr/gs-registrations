@@ -26,8 +26,26 @@ const newRegistrationHandler: RequestHandler = async (req, res, next) => {
         res.status(500).send();
     }
 };
-
+const getConfirmedRegistrationsHandler: RequestHandler = async (req, res, next) => {
+    try {
+        const regs = await execute<{ team: string, city: string, confirmed: number, waiting_list: number, paid: number }[]>(RegistrationQueries.GetRegistrations, []);
+        const mapped = regs.map<{ team: string, city: string, paid: boolean, safeSpot: boolean, waitingList: boolean }>(r => {
+            return {
+                team: r.team,
+                city: r.city,
+                paid: r.paid === 1,
+                safeSpot: r.confirmed === 1,
+                waitingList: r.waiting_list === 1
+            };
+        });
+        res.status(200).send(mapped);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send();
+    }
+};
 export const registrationRouter = Router();
 
 registrationRouter.post('/api/registration', checkContentType, newRegistrationHandler);
 
+registrationRouter.get('/api/registration', getConfirmedRegistrationsHandler);

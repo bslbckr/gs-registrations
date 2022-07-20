@@ -1,14 +1,22 @@
-import { createPool, Pool } from 'mysql';
+import { createPool, Pool, PoolConfig } from 'mysql';
 
 let pool: Pool;
+function buildPoolConfig(): PoolConfig {
+    const result: PoolConfig = {
+        user: process.env.DB_USER || "guc",
+        password: process.env.DB_PASSWORD || "guc",
+        database: process.env.DB_NAME || "guc_registrations"
+    };
+    if (process.env.DB_SOCKET) {
+        result.socketPath = process.env.DB_SOCKET;
+    } else {
+        result.host = process.env.DB_HOST || "localhost";
+    }
+    return result;
+}
 export const init = () => {
     try {
-        pool = createPool({
-            host: "localhost",
-            user: "guc",
-            password: "guc",
-            database: "guc_registrations"
-        });
+        pool = createPool(buildPoolConfig());
     } catch (error) {
         console.error(error);
         throw new Error('failed to initialize connection pool');

@@ -89,7 +89,7 @@
             }
         };
         
-        fetch('https://script.google.com/macros/s/AKfycbzDr3E5OqwHAyUlSl5Q3PQgVeX_cYugKT6t9ek2h9RjLonDVPKT2GDN-_S-N2BsfRlvkg/exec',
+        fetch('/api/registration',
               { method:'GET',
                 redirect:'follow',
                 cache:'no-cache',
@@ -105,5 +105,5 @@
 
     var bttn = document.getElementById('submitButton');
     bttn.addEventListener('click', postIfValid);
-
+    loadTeams();
 })();

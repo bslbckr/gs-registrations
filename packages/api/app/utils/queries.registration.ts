@@ -13,5 +13,11 @@ VALUES
   (?, ?, ?, ?, ?, ?, false, false);
 `,
     GetRegistrations: `
-SELECT (team, city, paid) FROM registrations`
+SELECT 
+team, city, confirmed, waiting_list, paid
+FROM registrations
+WHERE 
+  confirmed = true 
+  OR waiting_list = true
+ORDER BY confirmed DESC, position ASC`
 }
