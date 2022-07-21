@@ -19,7 +19,10 @@ server.use(morgan('combined'));
 server.use(helmet({
     contentSecurityPolicy: {
         directives: {
-            "default-src": [process.env.BASE_URL || 'localhost:8080', 'https://issuer.zitadel.ch', 'https://api.zitadel.ch']
+            "default-src": [process.env.BASE_URL || 'localhost:8080', 'https://issuer.zitadel.ch', 'https://api.zitadel.ch'],
+            "font-src": ['https://fonts.gstatic.com', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/'],
+            "style-src": ['https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', 'https://fonts.googleapis.com', "'self'", "'unsafe-inline'"],
+            "style-src-elem": ["'unsafe-inline'"]
         },
         useDefaults: true
     }
@@ -38,6 +41,7 @@ server.use('/', upload.none(), registrationRouter);
 server.use('/api/backend', backendRouter);
 server.use(express.static(path.join(__dirname, '../public')));
 server.use('/backend/', (req, res) => {
+
     res.sendFile(path.resolve(path.join(__dirname, '../public/backend'), 'index.html'));
 });
 if (server.get('env') === 'production') {
