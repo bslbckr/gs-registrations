@@ -22,7 +22,7 @@ server.use(helmet({
             "default-src": [process.env.BASE_URL || 'localhost:8080', 'https://issuer.zitadel.ch', 'https://api.zitadel.ch'],
             "font-src": ['https://fonts.gstatic.com', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/'],
             "style-src": ['https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', 'https://fonts.googleapis.com', "'self'", "'unsafe-inline'"],
-            "style-src-elem": ["'unsafe-inline'"]
+            "style-src-elem": [process.env.BASE_URL || 'localhost:8080', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', "'unsafe-inline'"]
         },
         useDefaults: true
     }
