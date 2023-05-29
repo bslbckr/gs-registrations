@@ -105,5 +105,5 @@
 
     var bttn = document.getElementById('submitButton');
     bttn.addEventListener('click', postIfValid);
-    loadTeams();
+    // loadTeams();
 })();
