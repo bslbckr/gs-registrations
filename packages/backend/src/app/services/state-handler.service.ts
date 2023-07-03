@@ -1,4 +1,4 @@
-import { Injectable, Injector, OnDestroy, Type } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { GuardsCheckStart, Router, RouterEvent } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Observable, Subject, throwError } from 'rxjs';
@@ -9,31 +9,28 @@ import { StatehandlerProcessorService } from './statehandler-processor.service';
 
 export abstract class StatehandlerService {
     public abstract createState(): Observable<string | undefined>;
-    public abstract initStateHandler(): void;
+    public abstract initStateHandler(router: Router): void;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class StatehandlerServiceImpl
     implements StatehandlerService, OnDestroy {
     private events?: Observable<string>;
     private unsubscribe$: Subject<void> = new Subject();
 
-    constructor(
-        oauthService: OAuthService,
-        private injector: Injector,
-        private processor: StatehandlerProcessorService,
-    ) {
+    ;
+    constructor(oauthService: OAuthService/* = inject(OAuthService)*/, private processor: StatehandlerProcessorService) {
+
         oauthService.events
             .pipe(
                 filter(event => event.type === 'token_received'),
                 map(() => oauthService.state),
                 takeUntil(this.unsubscribe$),
             )
-            .subscribe(state => processor.restoreState(state));
+            .subscribe(state => this.processor.restoreState(state));
     }
 
-    public initStateHandler(): void {
-        const router = this.injector.get(Router as Type<Router>);
+    public initStateHandler(router: Router): void {
         this.events = (router.events as Observable<RouterEvent>).pipe(
             filter(event => event instanceof GuardsCheckStart),
             map(event => event.url),
@@ -45,7 +42,7 @@ export class StatehandlerServiceImpl
 
     public createState(): Observable<string | undefined> {
         if (this.events === undefined) {
-            return throwError('no router events');
+            return throwError(() => new Error('no router events'));
         }
 
         return this.events.pipe(

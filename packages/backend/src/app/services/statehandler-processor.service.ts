@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -8,10 +8,11 @@ export abstract class StatehandlerProcessorService {
     public abstract restoreState(state?: string): void;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class StatehandlerProcessorServiceImpl
     implements StatehandlerProcessorService {
-    constructor(private location: Location) { }
+    private location: Location = inject(Location);
+    constructor() { }
 
     public createState(url: string): Observable<string> {
         const externalUrl = this.location.prepareExternalUrl(url);

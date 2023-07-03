@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { first } from 'rxjs';
 import { IRegistration } from '../iregistration';
 import { RegistrationService } from '../registration.service';
@@ -11,7 +11,8 @@ import { RegistrationService } from '../registration.service';
 export class RegistrationsComponent implements OnInit {
     registrations: IRegistration[] = [];
     displayedColumns: string[] = ["id", "team", "city", "contact", "strength", "mail", "comment", "regdate", "paid", "confirmed", "waitingList", "position"];
-    constructor(private regSvc: RegistrationService) { }
+    private regSvc: RegistrationService = inject(RegistrationService);
+    constructor() { }
 
     ngOnInit() {
         this.regSvc.registrations

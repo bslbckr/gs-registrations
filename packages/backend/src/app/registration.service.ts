@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, map, catchError, of } from 'rxjs';
 
 
@@ -9,8 +9,8 @@ import { IRegistration } from './iregistration';
     providedIn: 'root'
 })
 export class RegistrationService {
-
-    constructor(private client: HttpClient) { }
+    private client: HttpClient = inject(HttpClient);
+    constructor() { }
 
     get registrations(): Observable<IRegistration[]> {
         return this.client.get<IRegistration[]>("/api/backend/registrations");

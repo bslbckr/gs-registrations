@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 import { StatehandlerService } from './state-handler.service';
 
@@ -7,7 +7,11 @@ import { StatehandlerService } from './state-handler.service';
 })
 export class AuthService {
     private _authenticated = false;
-    constructor(private authConf: AuthConfig, private outh: OAuthService, private stateHandler: StatehandlerService) { }
+    private authConf: AuthConfig = inject(AuthConfig);
+    private outh: OAuthService = inject(OAuthService);
+    private stateHandler: StatehandlerService = inject(StatehandlerService);
+
+    constructor() { }
 
     get authenticated(): boolean {
         return this._authenticated;
