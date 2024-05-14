@@ -18,7 +18,8 @@ const newRegistrationHandler: RequestHandler = async (req, res, next) => {
             req.body['strength'],
             req.body['contact'],
             req.body['email'],
-            req.body['comment']
+            req.body['comment'],
+            req.body['division']
             ]);
         res.status(200).send({ success: true });
     } catch (error) {

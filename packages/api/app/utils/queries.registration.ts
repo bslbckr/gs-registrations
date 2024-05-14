@@ -7,10 +7,11 @@ INSERT INTO registrations
    contact,
    email,
    comment,
+   division,
    confirmed,
    paid)
 VALUES
-  (?, ?, ?, ?, ?, ?, false, false);
+(?, ?, ?, ?, ?, ?, ?, false, false);
 `,
     GetRegistrations: `
 SELECT 

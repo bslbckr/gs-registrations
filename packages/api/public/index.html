@@ -11,21 +11,21 @@
         <meta name="twitter:image" content="https://gs12.goldfingers-potsdam.de/bg-gs10.jpg" >
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
         <link rel="stylesheet"  href="./gs10.css" />
-        <title>Goldstrand 12,5 - 24./25. September 2022</title>
+        <title>Goldstrand 14 - 24./25. September 2024</title>
     </head>
     <body>
         <div class="container" >
             <main>
                 <section id="header-gs11" >
-                    <h1>#Goldstrand12,5 <small>24.-25. September 2022</small></h1>
+                    <h1>#Goldstrand14 <small>24.-25. September 2024</small></h1>
                 </section>
                 <section>
                     <a name="gs10"></a>
                     <ul>
-                        <li>24.-25. September 2022</li>
+                        <li>24.-25. September 2024</li>
                         <li>Karlshagen on the island of Usedom</li>
                         <li>Four playing fields on one of Germany's finest beaches</li>
-                        <li>5 vs. 5 Coed</li>
+                        <li>5 vs. 5 in three divisions: mixed, women, and open</li>
                         <li>Accomodation at a five star campsite, right behind the dunes</li>
                         <li>2x breakfast at the campsite</li>
                         <li>beach party at Saturday night</li>
@@ -54,11 +54,20 @@
                             </div>
                             <div class="form-group col-md-4 col-xs-12">
                                 <label class="control-label" for="inputStrength" >Level of play</label>
-                                <input class="form-control" type="number" name="strength" required min="1" max="10" placeholder="(1-10 1=bad 10=very strong)" >
+                                <input class="form-control" type="number" name="strength" required min="1" max="10" placeholder="(1-10 1=beginner 10=very strong)" >
                             </div>
                             <div class="form-group col-md-4 col-xs-12">
                                 <label class="control-label" for="inputContact" >Contact Person</label>
                                 <input class="form-control"  type="text" name="contact" required id="inputContact" >
+                            </div>
+                            <div class="form-group col-md-4 col-xs-12">
+                                <label class="control-label" for="inputDivision" >Division</label>
+                                <select class="form-control" name="division" required id="inputDivision">
+                                    <option value="">Choose Division</option>
+                                    <option value="M">Mixed</option>
+                                    <option value="W">Women</option>
+                                    <option value="O">Open</option>
+                                </select>
                             </div>
                             <div class="form-group col-md-12 col-xs-12" >
                                 <label class="control-label"  for="inputUrl" >Comment</label>

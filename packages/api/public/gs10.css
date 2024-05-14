@@ -32,7 +32,7 @@ nav.nav {
     width: 100%;
 }
 
-input:invalid {
+select:invalid,input:invalid {
     color: red;
     border-color: red;
 }
