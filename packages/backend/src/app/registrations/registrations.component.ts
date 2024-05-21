@@ -9,7 +9,10 @@ import { RegistrationService } from '../registration.service';
     styleUrls: ['./registrations.component.css']
 })
 export class RegistrationsComponent implements OnInit {
-    registrations: IRegistration[] = [];
+    private registrations: IRegistration[] = [];
+    registrationsX: IRegistration[] = [];
+    registrationsW: IRegistration[] = [];
+    registrationsO: IRegistration[] = [];
     displayedColumns: string[] = ["id", "team", "city", "contact", "strength", "mail", "comment", "regdate", "paid", "confirmed", "waitingList", "position"];
     private regSvc: RegistrationService = inject(RegistrationService);
     constructor() { }
@@ -17,7 +20,12 @@ export class RegistrationsComponent implements OnInit {
     ngOnInit() {
         this.regSvc.registrations
             .pipe(first())
-            .subscribe((regs: IRegistration[]) => this.registrations = regs);
+            .subscribe((regs: IRegistration[]) => {
+                this.registrations = regs;
+                this.registrationsO = regs.filter(r => r.division === 'O');
+                this.registrationsX = regs.filter(r => r.division === 'X');
+                this.registrationsW = regs.filter(r => r.division === 'W');
+            });
     }
 
     toggleConfirmation(reg: IRegistration) {

@@ -1,5 +1,6 @@
 import { APP_INITIALIZER, inject, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -12,6 +13,7 @@ import { environment } from 'src/environments/environment';
 import { StatehandlerService, StatehandlerServiceImpl } from './services/state-handler.service';
 import { PlatformLocation } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -21,7 +23,7 @@ const authConfig: AuthConfig = {
     issuer: environment.oidc.issuer,
     clientId: environment.oidc.clientId,
     responseType: 'code',
-    scope: 'openid profile email offline_access manager',
+    scope: 'openid profile email offline_access',
     oidc: true,
     strictDiscoveryDocumentValidation: false,
     showDebugInformation: true,
@@ -38,10 +40,12 @@ function storageFactory(): OAuthStorage { return localStorage; }
     ],
     imports: [
         BrowserModule,
+        NoopAnimationsModule,
         HttpClientModule,
         OAuthModule.forRoot(),
         AppRoutingModule,
         MatTableModule,
+        MatTabsModule,
         MatCheckboxModule
     ],
     providers: [

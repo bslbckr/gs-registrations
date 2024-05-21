@@ -5,8 +5,8 @@
 export const environment = {
     production: false,
     oidc: {
-        issuer: "https://guc-backends-3wlox6.zitadel.cloud",
-        clientId: "218142614656975105@gs_registration",
+        issuer: "http://localhost:8081/realms/guc",
+        clientId: "gs_registration",
     }
 };
 

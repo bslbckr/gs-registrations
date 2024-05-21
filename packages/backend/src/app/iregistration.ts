@@ -10,4 +10,5 @@ export interface IRegistration {
     readonly waitingList: boolean;
     readonly position: number;
     readonly registrationDate: Date;
+    readonly division: string;
 }
