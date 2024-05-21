@@ -9,6 +9,8 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import { auth, claimCheck } from 'express-oauth2-jwt-bearer';
 
+type RoleMapping = { [client: string]: { roles: string[] } };
+
 dotenv.config();
 
 const server: express.Application = express();
@@ -19,7 +21,7 @@ server.use(morgan('combined'));
 server.use(helmet({
     contentSecurityPolicy: {
         directives: {
-            "default-src": [process.env.BASE_URL || 'localhost:8080', 'https://login.goldfingers-potsdam.de/'],
+            "default-src": [process.env.BASE_URL || 'localhost:8080', 'localhost:8081', 'https://login.goldfingers-potsdam.de/'],
             "font-src": ['https://fonts.gstatic.com', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/'],
             "style-src": ['https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', 'https://fonts.googleapis.com', "'self'", "'unsafe-inline'"],
             "style-src-elem": [process.env.BASE_URL || 'localhost:8080', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', "'unsafe-inline'"]
@@ -33,8 +35,12 @@ server.use('/api/backend',
     auth({ strict: false }),
     //claimEquals("urn:zitadel:iam:org:project:roles", "manager"),
     claimCheck(payload => {
-        const roles = payload['urn:zitadel:iam:org:project:roles'];
-        return roles !== null && typeof roles === 'object' && 'manager' in roles;
+        const roles = payload['resource_access'] as RoleMapping;
+        if (roles === null || typeof roles !== 'object') {
+            return false;
+        }
+        console.dir(roles);
+        return roles['gs_registration'].roles.includes('reader') || roles['gs_registration'].roles.includes('manager');
     }),
     backendRouter);
 server.use('/', upload.none(), registrationRouter);
