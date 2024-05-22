@@ -8,5 +8,5 @@ UPDATE registrations SET confirmed = ? WHERE id = ?`,
     WaitingRegistration: `
 UPDATE registrations SET waiting_list = ? WHERE id = ?`,
     AllRegistrations: `
-SELECT id, team, city, strength, contact, email, comment, registration_date, confirmed, paid, waiting_list, position FROM registrations`
+SELECT id, team, city, strength, contact, email, comment, registration_date, confirmed, paid, waiting_list, position, division FROM registrations`
 };

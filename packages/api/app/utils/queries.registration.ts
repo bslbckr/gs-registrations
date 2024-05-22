@@ -15,7 +15,7 @@ VALUES
 `,
     GetRegistrations: `
 SELECT 
-team, city, confirmed, waiting_list, paid
+team, city, confirmed, waiting_list, paid, division
 FROM registrations
 WHERE 
   confirmed = true 
