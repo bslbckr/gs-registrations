@@ -23,7 +23,7 @@ export class RegistrationsComponent implements OnInit {
             .subscribe((regs: IRegistration[]) => {
                 this.registrations = regs;
                 this.registrationsO = regs.filter(r => r.division === 'O');
-                this.registrationsX = regs.filter(r => r.division === 'X');
+                this.registrationsX = regs.filter(r => r.division === 'M');
                 this.registrationsW = regs.filter(r => r.division === 'W');
             });
     }
