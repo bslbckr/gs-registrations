@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+      "test": "ng test",
+      "prod:build": "ng build --aot --optimization --output-path ../api/public/backend/ --configuration production --subresource-integrity --base-href=/backend/"
   },
   "private": true,
   "dependencies": {
