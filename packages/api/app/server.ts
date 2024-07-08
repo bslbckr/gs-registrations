@@ -34,13 +34,11 @@ server.use(express.urlencoded({ extended: false }));
 server.use(express.json());
 server.use('/api/backend',
     auth({ strict: false }),
-    //claimEquals("urn:zitadel:iam:org:project:roles", "manager"),
     claimCheck(payload => {
         const roles = payload['resource_access'] as RoleMapping;
         if (roles === null || typeof roles !== 'object') {
             return false;
         }
-        console.dir(roles);
         return roles['gs_registration'].roles.includes('reader') || roles['gs_registration'].roles.includes('manager');
     }),
     backendRouter);

@@ -29,14 +29,15 @@ const newRegistrationHandler: RequestHandler = async (req, res, next) => {
 };
 const getConfirmedRegistrationsHandler: RequestHandler = async (req, res, next) => {
     try {
-        const regs = await execute<{ team: string, city: string, confirmed: number, waiting_list: number, paid: number }[]>(RegistrationQueries.GetRegistrations, []);
+        const regs = await execute<{ team: string, city: string, confirmed: number, waiting_list: number, paid: number, division: string }[]>(RegistrationQueries.GetRegistrations, []);
         const mapped = regs.map<{ team: string, city: string, paid: boolean, safeSpot: boolean, waitingList: boolean }>(r => {
             return {
                 team: r.team,
                 city: r.city,
                 paid: r.paid === 1,
                 safeSpot: r.confirmed === 1,
-                waitingList: r.waiting_list === 1
+                waitingList: r.waiting_list === 1,
+                division: r.division
             };
         });
         res.status(200).send(mapped);

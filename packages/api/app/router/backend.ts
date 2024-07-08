@@ -1,6 +1,7 @@
+import { claimCheck } from 'express-oauth2-jwt-bearer';
 import { execute } from '../utils/mysql.connector';
 import { BackendQueries } from '../utils/queries.backend';
-import { RequestHandler, Router } from 'express';
+import { Handler, RequestHandler, Router } from 'express';
 
 type DbResult = { id: number, team: string, city: string, strength: number, contact: string, email: string, comment: string, registration_date: string, confirmed: number, paid: number, waiting_list: number, position: number, division: string };
 type JsonResult = { id: number, team: string, city: string, strength: number, contact: string, email: string, comment: string, registrationDate: string, confirmed: boolean, paid: boolean, waitingList: boolean, position: number, division: string };
@@ -58,11 +59,18 @@ const allRegistrations: RequestHandler = async (req, res, next) => {
     });
     res.status(200).send(mapped);
 };
-/*
- * disabled for the moment
-backendRouter.delete('/registrations/:id', deleteRegistration);
-backendRouter.post('/registrations/:id/confirm', confirmRegistration);
-backendRouter.post('/registrations/:id/paid', paidRegistration);
-backendRouter.post('/registrations/:id/waiting', waitingRegistration);
-*/
+
+const requireManagerRole: Handler =
+    claimCheck(payload => {
+        const roles = payload['resource_access'] as { [client: string]: { roles: string[] } };
+        if (roles === null || typeof roles !== 'object') {
+            return false;
+        }
+        return roles['gs_registration'].roles.includes('manager');
+    });
+
+backendRouter.delete('/registrations/:id', requireManagerRole, deleteRegistration);
+backendRouter.post('/registrations/:id/confirm', requireManagerRole, confirmRegistration);
+backendRouter.post('/registrations/:id/paid', requireManagerRole, paidRegistration);
+backendRouter.post('/registrations/:id/waiting', requireManagerRole, waitingRegistration);
 backendRouter.get('/registrations', allRegistrations);

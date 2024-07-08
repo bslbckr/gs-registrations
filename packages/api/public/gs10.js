@@ -59,8 +59,8 @@
             row.insertCell().appendChild(span);
         }
 
-        function insertTable(teams) {
-            var section = document.getElementById('teamsSection');
+        function insertTable(teams, section) {
+
             if (teams && teams.length && teams.length > 0) {
                 var leTable = createTeamListTable();
                 var insertIntoTeamTable = insertTeamRow.bind(this, leTable);
@@ -69,7 +69,7 @@
 
                 section.appendChild(leTable);
 
-                var waitingListHeader = document.createElement('h3');
+                var waitingListHeader = document.createElement('h4');
                 waitingListHeader.appendChild(document.createTextNode('Waiting list'));
                 var waitingListTable = createTeamListTable();
                 var waitingListFilled = false;
@@ -88,6 +88,33 @@
                 section.appendChild(document.createElement('p').appendChild(document.createTextNode('TBA')));
             }
         };
+
+        function splitTeamsByDivions(teams) {
+            const buildDivisionHeader = (title) => {
+                const divisionSection = document.createElement('h3');
+                divisionSection.appendChild(document.createTextNode(title));
+                return divisionSection;
+            };
+            if (teams && teams.length && teams.length > 0) {
+                const grouping = Object.groupBy(teams, ({division}) => division);
+                const section = document.getElementById('teamsSection');
+                if (grouping.M) {
+                    const mixedSection = buildDivisionHeader('Mixed');
+                    section.appendChild(mixedSection);
+                    insertTable(grouping.M, section);
+                }
+                if (grouping.W) {
+                    const womenSection = buildDivisionHeader('Women');
+                    section.appendChild(womenSection);
+                    insertTable(grouping.W, section);
+                }
+                if (grouping.O) {
+                    const openSection = buildDivisionHeader('Open');
+                    section.appendChild(openSection);
+                    insertTable(grouping.O, section);
+                }
+            }
+        }
         
         fetch('/api/registration',
               { method:'GET',
@@ -100,10 +127,10 @@
                   }
                   return [];
                   
-              }).then(insertTable).catch(function(err){console.log(err);});
+              }).then(splitTeamsByDivions).catch(function(err){console.log(err);});
     }
 
     var bttn = document.getElementById('submitButton');
     bttn.addEventListener('click', postIfValid);
-    // loadTeams();
+    loadTeams();
 })();
