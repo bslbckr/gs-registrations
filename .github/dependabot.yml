@@ -10,6 +10,7 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
+      prefix: "[Dependabot]"
       include: "scope"
     versioning-strategy: increase-if-necessary
     groups:
