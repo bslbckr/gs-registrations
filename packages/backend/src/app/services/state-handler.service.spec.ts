@@ -1,16 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 
-import { StateHandlerService } from './state-handler.service';
+import { StatehandlerService } from './state-handler.service';
 
 describe('StateHandlerService', () => {
-  let service: StateHandlerService;
+    let service: StatehandlerService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(StateHandlerService);
-  });
+    beforeEach(() => {
+        TestBed.configureTestingModule({});
+        service = TestBed.inject(StatehandlerService);
+    });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
 });
