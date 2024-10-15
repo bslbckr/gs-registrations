@@ -2,11 +2,16 @@ import { Component, inject, OnInit } from '@angular/core';
 import { first } from 'rxjs';
 import { IRegistration } from '../iregistration';
 import { RegistrationService } from '../registration.service';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
+import { MatTabGroup, MatTab } from '@angular/material/tabs';
 
 @Component({
     selector: 'app-registrations',
     templateUrl: './registrations.component.html',
-    styleUrls: ['./registrations.component.css']
+    styleUrls: ['./registrations.component.css'],
+    standalone: true,
+    imports: [MatTabGroup, MatTab, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatCheckbox, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class RegistrationsComponent implements OnInit {
     private registrations: IRegistration[] = [];

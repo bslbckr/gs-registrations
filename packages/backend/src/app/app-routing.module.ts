@@ -4,7 +4,7 @@ import { authGuard } from './auth/auth.guard';
 import { RegistrationsComponent } from './registrations/registrations.component';
 import { StartComponent } from './start/start.component';
 
-const routes: Routes = [
+export const routes: Routes = [
     {
         path: 'registrations',
         component: RegistrationsComponent,
@@ -13,9 +13,3 @@ const routes: Routes = [
     { path: 'auth/callback', redirectTo: 'registrations' },
     { path: '**', component: StartComponent, pathMatch: 'full' }
 ];
-
-@NgModule({
-    imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule]
-})
-export class AppRoutingModule { }
