@@ -12,7 +12,7 @@
   "author": "Basil",
   "license": "ISC",
   "devDependencies": {
-    "@types/express": "^4.17",
+    "@types/express": "^5.0",
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.11",
     "@types/mysql": "^2.15.26",
