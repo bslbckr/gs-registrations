@@ -1,23 +1,17 @@
-import { enableProdMode, inject, importProvidersFrom, provideAppInitializer } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { inject, provideAppInitializer } from '@angular/core';
 
 
 import { environment } from './environments/environment';
 import { AppComponent } from './app/app.component';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { routes } from './app/app-routing.module';
 import { withInterceptorsFromDi, provideHttpClient } from '@angular/common/http';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
+import { bootstrapApplication } from '@angular/platform-browser';
 import { Router, provideRouter } from '@angular/router';
 import { StatehandlerService, StatehandlerServiceImpl } from './app/services/state-handler.service';
 import { StatehandlerProcessorService, StatehandlerProcessorServiceImpl } from './app/services/statehandler-processor.service';
 import { AuthService } from './app/services/auth.service';
 import { PlatformLocation } from '@angular/common';
-import { environment as environment_1 } from 'src/environments/environment';
-import { AuthConfig, OAuthStorage, OAuthModuleConfig, OAuthService, OAuthModule } from 'angular-oauth2-oidc';
+import { AuthConfig, OAuthStorage, OAuthService, provideOAuthClient } from 'angular-oauth2-oidc';
 import { RegistrationService } from './app/registration.service';
 
 const authConfig: AuthConfig = {
@@ -32,15 +26,16 @@ const authConfig: AuthConfig = {
 };
 function storageFactory(): OAuthStorage { return localStorage; }
 
-
-
-if (environment.production) {
-    enableProdMode();
-}
-
 bootstrapApplication(AppComponent, {
     providers: [
-        importProvidersFrom(BrowserModule, OAuthModule.forRoot(), MatTableModule, MatTabsModule, MatCheckboxModule),
+      //importProvidersFrom(BrowserModule, MatTableModule, MatTabsModule, MatCheckboxModule),
+      
+      provideOAuthClient({
+                resourceServer: {
+                    allowedUrls: ['/api/backend'],
+                    sendAccessToken: true
+                }
+            }),
         { provide: RegistrationService },
         provideRouter(routes),
         {
@@ -53,15 +48,6 @@ bootstrapApplication(AppComponent, {
         {
             provide: OAuthStorage,
             useFactory: storageFactory
-        },
-        {
-            provide: OAuthModuleConfig,
-            useValue: {
-                resourceServer: {
-                    allowedUrls: ['/api/backend'],
-                    sendAccessToken: true
-                }
-            }
         },
         { provide: AuthService },
         { provide: StatehandlerProcessorService, useClass: StatehandlerProcessorServiceImpl },
@@ -81,7 +67,7 @@ bootstrapApplication(AppComponent, {
             })();
         return initializerFn();
       }),
-        provideNoopAnimations(),
+      //provideNoopAnimations(),
         provideHttpClient(withInterceptorsFromDi())
     ]
 })
