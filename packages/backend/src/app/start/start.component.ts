@@ -5,7 +5,6 @@ import { RouterLink } from '@angular/router';
     selector: 'app-start',
     templateUrl: './start.component.html',
     styleUrls: ['./start.component.css'],
-    standalone: true,
     imports: [RouterLink]
 })
 export class StartComponent implements OnInit {

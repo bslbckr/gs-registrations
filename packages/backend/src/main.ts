@@ -1,4 +1,4 @@
-import { enableProdMode, inject, APP_INITIALIZER, importProvidersFrom } from '@angular/core';
+import { enableProdMode, inject, importProvidersFrom, provideAppInitializer } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 
@@ -73,15 +73,14 @@ bootstrapApplication(AppComponent, {
                 return new StatehandlerServiceImpl(oauth, proc);
             }
         },
-        {
-            provide: APP_INITIALIZER,
-            multi: true,
-            useFactory: () => {
+        provideAppInitializer(() => {
+        const initializerFn = (() => {
                 const rtr = inject(Router);
                 const handler = inject(StatehandlerService);
                 return () => handler.initStateHandler(rtr);
-            }
-        },
+            })();
+        return initializerFn();
+      }),
         provideNoopAnimations(),
         provideHttpClient(withInterceptorsFromDi())
     ]

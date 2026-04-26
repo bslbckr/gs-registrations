@@ -10,7 +10,6 @@ import { MatTabGroup, MatTab } from '@angular/material/tabs';
     selector: 'app-registrations',
     templateUrl: './registrations.component.html',
     styleUrls: ['./registrations.component.css'],
-    standalone: true,
     imports: [MatTabGroup, MatTab, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatCheckbox, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class RegistrationsComponent implements OnInit {
