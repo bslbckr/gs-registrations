@@ -11,7 +11,7 @@ export abstract class StatehandlerProcessorService {
 @Injectable({ providedIn: 'root' })
 export class StatehandlerProcessorServiceImpl
     implements StatehandlerProcessorService {
-    private location: Location = inject(Location);
+      private location: Location = inject(Location);
     constructor() { }
 
     public createState(url: string): Observable<string> {

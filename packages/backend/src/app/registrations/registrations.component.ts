@@ -7,6 +7,7 @@ import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, Ma
 import { MatTabGroup, MatTab } from '@angular/material/tabs';
 
 @Component({
+    standalone: true,
     selector: 'app-registrations',
     templateUrl: './registrations.component.html',
     styleUrls: ['./registrations.component.css'],

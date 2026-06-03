@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, inject, OnDestroy } from '@angular/core';
 import { GuardsCheckStart, Router, RouterEvent } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Observable, Subject, throwError } from 'rxjs';
@@ -12,15 +12,15 @@ export abstract class StatehandlerService {
     public abstract initStateHandler(router: Router): void;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'any'})
 export class StatehandlerServiceImpl
     implements StatehandlerService, OnDestroy {
     private events?: Observable<string>;
     private unsubscribe$: Subject<void> = new Subject();
-
-    ;
-    constructor(oauthService: OAuthService/* = inject(OAuthService)*/, private processor: StatehandlerProcessorService) {
-
+    private processor: StatehandlerProcessorService = inject(StatehandlerProcessorService);
+    
+    constructor() {
+        const oauthService: OAuthService = inject(OAuthService);
         oauthService.events
             .pipe(
                 filter(event => event.type === 'token_received'),

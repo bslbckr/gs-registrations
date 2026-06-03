@@ -21,11 +21,11 @@
     "@angular/platform-browser": "^20.3.19",
     "@angular/platform-browser-dynamic": "^20.3.19",
     "@angular/router": "^20.3.19",
-    "angular-oauth2-oidc": "^19.0.0",
+    "angular-oauth2-oidc": "^20.0.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.6.2",
     "uuid": "^14.0.0",
-    "zone.js": "~0.15.0"
+    "zone.js": "~0.15"
   },
   "devDependencies": {
     "@angular/build": "^20.3.24",

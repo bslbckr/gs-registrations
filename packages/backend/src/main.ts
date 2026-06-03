@@ -1,4 +1,4 @@
-import { inject, provideAppInitializer } from '@angular/core';
+import { enableProdMode, inject, provideAppInitializer, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, provideZonelessChangeDetection } from '@angular/core';
 
 
 import { environment } from './environments/environment';
@@ -11,7 +11,7 @@ import { StatehandlerService, StatehandlerServiceImpl } from './app/services/sta
 import { StatehandlerProcessorService, StatehandlerProcessorServiceImpl } from './app/services/statehandler-processor.service';
 import { AuthService } from './app/services/auth.service';
 import { PlatformLocation } from '@angular/common';
-import { AuthConfig, OAuthStorage, OAuthService, provideOAuthClient } from 'angular-oauth2-oidc';
+import { AuthConfig, OAuthStorage, OAuthService, provideOAuthClient, OAuthModuleConfig } from 'angular-oauth2-oidc';
 import { RegistrationService } from './app/registration.service';
 
 const authConfig: AuthConfig = {
@@ -24,51 +24,51 @@ const authConfig: AuthConfig = {
     showDebugInformation: true,
 
 };
+
+const authModuleConfig: OAuthModuleConfig = {
+  resourceServer: {
+    allowedUrls: ['/api/backend'],
+    sendAccessToken: true
+  }
+};
+
 function storageFactory(): OAuthStorage { return localStorage; }
 
+if(environment.production) {
+  enableProdMode();
+} 
+
 bootstrapApplication(AppComponent, {
-    providers: [
-      //importProvidersFrom(BrowserModule, MatTableModule, MatTabsModule, MatCheckboxModule),
-      
-      provideOAuthClient({
-                resourceServer: {
-                    allowedUrls: ['/api/backend'],
-                    sendAccessToken: true
-                }
-            }),
-        { provide: RegistrationService },
-        provideRouter(routes),
-        {
-            provide: AuthConfig,
-            useFactory: () => {
-                authConfig.redirectUri = window.location.origin + inject(PlatformLocation).getBaseHrefFromDOM() + 'auth/callback';
-                return authConfig;
-            }
-        },
-        {
-            provide: OAuthStorage,
-            useFactory: storageFactory
-        },
-        { provide: AuthService },
-        { provide: StatehandlerProcessorService, useClass: StatehandlerProcessorServiceImpl },
-        {
-            provide: StatehandlerService,
-            useFactory: () => {
-                const oauth = inject(OAuthService);
-                const proc = inject(StatehandlerProcessorService);
-                return new StatehandlerServiceImpl(oauth, proc);
-            }
-        },
-        provideAppInitializer(() => {
-        const initializerFn = (() => {
-                const rtr = inject(Router);
-                const handler = inject(StatehandlerService);
-                return () => handler.initStateHandler(rtr);
-            })();
-        return initializerFn();
-      }),
-      //provideNoopAnimations(),
-        provideHttpClient(withInterceptorsFromDi())
-    ]
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideZoneChangeDetection({eventCoalescing: true}),
+    provideOAuthClient(authModuleConfig),
+    RegistrationService,
+    provideRouter(routes),
+    {
+      provide: AuthConfig,
+      useFactory: () => {
+        authConfig.redirectUri = window.location.origin + inject(PlatformLocation).getBaseHrefFromDOM() + 'auth/callback';
+        return authConfig;
+      }
+    },
+    {
+      provide: OAuthStorage,
+      useFactory: storageFactory
+    },
+    AuthService,
+    { provide: StatehandlerProcessorService, useClass: StatehandlerProcessorServiceImpl },
+      /*{
+        provide: StatehandlerService,
+        useClass: StatehandlerProcessorServiceImpl
+        },*/
+    StatehandlerServiceImpl,/*
+      provideAppInitializer(() => {
+        const rtr = inject(Router);
+        const handler = inject(StatehandlerServiceImpl);
+        handler.initStateHandler(rtr);
+        }),*/
+    provideHttpClient(withInterceptorsFromDi())
+  ]
 })
-    .catch(err => console.error(err));
+  .catch(err => console.error(err));
