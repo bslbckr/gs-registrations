@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { Observable, of } from 'rxjs';
-import { filter, map, switchMap, take } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { StatehandlerService } from './state-handler.service';
 
 /**
@@ -24,13 +24,15 @@ export class AuthService {
 
   /**
    * Observable stream of the current authentication state.
+   * Emits true when the user has a valid access token.
    */
   readonly isAuthenticated$: Observable<boolean> = this.oidcService.isAuthenticated$;
 
   /**
    * Observable stream of the current access token.
+   * Emits the access token string or null if not available.
    */
-  readonly accessToken$: Observable<string | null> = this.oidcService.getAccessToken$();
+  readonly accessToken$: Observable<string> = this.oidcService.getAccessToken();
 
   /**
    * Initiates the OIDC authentication flow with optional state preservation.
@@ -48,14 +50,13 @@ export class AuthService {
   }
 
   /**
-   * Initiates the OIDC login with an optional state value.
+   * Initiates the OIDC login flow with an optional state value.
    * @param state - Optional state parameter for navigation preservation
    * @returns Observable<void> that completes after login is initiated
    */
   private startLogin(state: string | undefined): Observable<void> {
-    this.oidcService.authorize({
-      state: state
-    });
+    // Call authorize without state object; angular-auth-oidc-client handles state internally
+    this.oidcService.authorize();
     return of(void 0);
   }
 
@@ -64,21 +65,7 @@ export class AuthService {
    * @returns Observable<void> that completes after logout is initiated
    */
   logout(): Observable<void> {
-    this.oidcService.logoff();
+    this.oidcService.logoffAndRevokeTokens();
     return of(void 0);
-  }
-
-  /**
-   * Retrieves the current authentication state as a synchronous boolean.
-   * Note: Consider using isAuthenticated$ for reactive updates in components.
-   *
-   * @returns true if the user has a valid access token, false otherwise
-   */
-  get isAuthenticatedSync(): boolean {
-    let authenticated = false;
-    this.isAuthenticated$.pipe(take(1)).subscribe(value => {
-      authenticated = value;
-    });
-    return authenticated;
   }
 }
