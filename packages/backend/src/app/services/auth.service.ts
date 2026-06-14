@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { Observable, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { StatehandlerService } from './state-handler.service';
 
 /**
@@ -26,7 +26,8 @@ export class AuthService {
    * Observable stream of the current authentication state.
    * Emits true when the user has a valid access token.
    */
-  readonly isAuthenticated$: Observable<boolean> = this.oidcService.isAuthenticated$;
+  readonly isAuthenticated$: Observable<boolean> = this.oidcService.isAuthenticated$
+    .pipe(map(ar => ar.isAuthenticated));
 
   /**
    * Observable stream of the current access token.

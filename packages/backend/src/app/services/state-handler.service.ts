@@ -1,6 +1,6 @@
 import { Injectable, inject, OnDestroy } from '@angular/core';
 import { GuardsCheckStart, Router, RouterEvent } from '@angular/router';
-import { OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
+import { EventTypes, OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
 import { Observable, Subject, throwError } from 'rxjs';
 import { filter, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import { StatehandlerProcessorService } from './statehandler-processor.service';
@@ -54,7 +54,7 @@ export class StatehandlerServiceImpl implements StatehandlerService, OnDestroy {
   private setupStateRestoration(): void {
     this.publicEventsService.registerForEvents()
       .pipe(
-        filter(event => event.type === 'CodeFlowCodeReceived' || event.type === 'AuthorizationResultReceived'),
+        filter(event => event.type === EventTypes.NewAuthenticationResult),
         switchMap(() => {
           // Extract state from the URL after redirect
           const params = new URLSearchParams(window.location.search);
