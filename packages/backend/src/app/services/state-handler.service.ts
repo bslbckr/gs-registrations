@@ -1,57 +1,129 @@
 import { Injectable, inject, OnDestroy } from '@angular/core';
 import { GuardsCheckStart, Router, RouterEvent } from '@angular/router';
-import { OAuthService } from 'angular-oauth2-oidc';
+import { PublicEventsService } from 'angular-auth-oidc-client';
 import { Observable, Subject, throwError } from 'rxjs';
 import { filter, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import { StatehandlerProcessorService } from './statehandler-processor.service';
 
-
-
+/**
+ * Abstract interface for state handling across authentication flows.
+ * Enables state preservation during OAuth callback redirects.
+ */
 export abstract class StatehandlerService {
-    public abstract createState(): Observable<string | undefined>;
-    public abstract initStateHandler(router: Router): void;
+  /**
+   * Creates a state value from the current router URL.
+   * @returns Observable that emits the created state string or undefined
+   */
+  abstract createState(): Observable<string | undefined>;
+
+  /**
+   * Initializes the state handler with router events.
+   * @param router - The Angular router instance
+   */
+  abstract initStateHandler(router: Router): void;
 }
 
-@Injectable({providedIn: 'any'})
-export class StatehandlerServiceImpl
-    implements StatehandlerService, OnDestroy {
-    private events?: Observable<string>;
-    private unsubscribe$: Subject<void> = new Subject();
-    private processor: StatehandlerProcessorService = inject(StatehandlerProcessorService);
-    
-    constructor() {
-        const oauthService: OAuthService = inject(OAuthService);
-        oauthService.events
-            .pipe(
-                filter(event => event.type === 'token_received'),
-                map(() => oauthService.state),
-                takeUntil(this.unsubscribe$),
-            )
-            .subscribe(state => this.processor.restoreState(state));
-    }
+/**
+ * Implementation of StatehandlerService using angular-auth-oidc-client events.
+ * Manages OIDC state preservation and restoration during authentication flows.
+ *
+ * SOLID Principles:
+ * - Single Responsibility: Handles only state creation and restoration logic
+ * - Open/Closed: Extends abstract StatehandlerService without modification
+ * - Liskov Substitution: Can be used anywhere StatehandlerService is expected
+ * - Interface Segregation: Depends only on required abstractions
+ * - Dependency Inversion: Depends on injected services, not concrete implementations
+ */
+@Injectable({ providedIn: 'root' })
+export class StatehandlerServiceImpl implements StatehandlerService, OnDestroy {
+  private routerEvents$: Observable<string> | null = null;
+  private readonly destroy$: Subject<void> = new Subject();
 
-    public initStateHandler(router: Router): void {
-        this.events = (router.events as Observable<RouterEvent>).pipe(
-            filter(event => event instanceof GuardsCheckStart),
-            map(event => event.url),
-            shareReplay(1),
-        );
+  private readonly processor: StatehandlerProcessorService = inject(StatehandlerProcessorService);
+  private readonly publicEventsService: PublicEventsService = inject(PublicEventsService);
 
-        this.events.pipe(takeUntil(this.unsubscribe$)).subscribe();
-    }
+  constructor() {
+    this.setupStateRestoration();
+  }
 
-    public createState(): Observable<string | undefined> {
-        if (this.events === undefined) {
-            return throwError(() => new Error('no router events'));
-        }
-
-        return this.events.pipe(
+  /**
+   * Sets up listeners for OIDC events to restore state after authentication.
+   * Listens for successful token reception and restores the saved navigation state.
+   */
+  private setupStateRestoration(): void {
+    this.publicEventsService.registerForEvents()
+      .pipe(
+        filter(event => event.type === 'ConfigLoaded' || event.type === 'NewAuthorizationResultReceived'),
+        take(1),
+        switchMap(() => {
+          // Extract state from the OIDC security service's state parameter
+          // This will be available after the authorization flow completes
+          return this.publicEventsService.registerForEvents().pipe(
+            filter(e => e.type === 'CodeFlowCodeReceived' || e.type === 'AuthorizationResultReceived'),
             take(1),
-            switchMap(url => this.processor.createState(url)),
-        );
+            map(() => this.extractStateFromUrl())
+          );
+        }),
+        filter(state => state != null),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(state => {
+        if (state != null) {
+          this.processor.restoreState(state);
+        }
+      });
+  }
+
+  /**
+   * Extracts the state parameter from the current URL.
+   * @returns The state value from the URL or null if not present
+   */
+  private extractStateFromUrl(): string | null {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('state');
+  }
+
+  /**
+   * Initializes router event tracking for state creation.
+   * Captures the current URL when guards are checked to preserve navigation intent.
+   *
+   * @param router - The Angular router instance
+   */
+  initStateHandler(router: Router): void {
+    this.routerEvents$ = (router.events as Observable<RouterEvent>).pipe(
+      filter(event => event instanceof GuardsCheckStart),
+      map(event => event.url),
+      shareReplay(1),
+      takeUntil(this.destroy$)
+    );
+
+    // Activate the observable chain
+    this.routerEvents$.subscribe();
+  }
+
+  /**
+   * Creates a state value from the current router navigation URL.
+   * Used to preserve navigation context during OAuth redirects.
+   *
+   * @returns Observable<string | undefined> - The created state value or undefined if router events not initialized
+   * @throws Error if router events have not been initialized via initStateHandler()
+   */
+  createState(): Observable<string | undefined> {
+    if (this.routerEvents$ == null) {
+      return throwError(() => new Error('Router events not initialized. Call initStateHandler() first.'));
     }
 
-    public ngOnDestroy(): void {
-        this.unsubscribe$.next();
-    }
+    return this.routerEvents$.pipe(
+      take(1),
+      switchMap(url => this.processor.createState(url))
+    );
+  }
+
+  /**
+   * Cleanup lifecycle hook to unsubscribe from all observables.
+   */
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }
