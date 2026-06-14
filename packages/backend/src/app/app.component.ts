@@ -1,4 +1,4 @@
-import { Component, inject, NgZone } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 
 import { StatehandlerServiceImpl } from './services/state-handler.service';
@@ -11,8 +11,10 @@ import { StatehandlerServiceImpl } from './services/state-handler.service';
     imports: [RouterOutlet]
 })
 export class AppComponent {
+
   title = 'backend';
-  constructor(private zone: NgZone) {
+
+  constructor() {
     const router = inject(Router);
     const handler = inject(StatehandlerServiceImpl);
     handler.initStateHandler(router);
