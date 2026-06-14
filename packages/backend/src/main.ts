@@ -1,74 +1,63 @@
-import { enableProdMode, inject, provideAppInitializer, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, provideZonelessChangeDetection } from '@angular/core';
-
+import { enableProdMode, inject } from '@angular/core';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { Router, provideRouter } from '@angular/router';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  provideOidcClient,
+  LogLevel,
+  AuthWellknownEndpointsService
+} from 'angular-auth-oidc-client';
 
 import { environment } from './environments/environment';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app-routing.module';
-import { withInterceptorsFromDi, provideHttpClient } from '@angular/common/http';
-import { bootstrapApplication } from '@angular/platform-browser';
-import { Router, provideRouter } from '@angular/router';
-import { StatehandlerService, StatehandlerServiceImpl } from './app/services/state-handler.service';
-import { StatehandlerProcessorService, StatehandlerProcessorServiceImpl } from './app/services/statehandler-processor.service';
 import { AuthService } from './app/services/auth.service';
-import { PlatformLocation } from '@angular/common';
-import { AuthConfig, OAuthStorage, OAuthService, provideOAuthClient, OAuthModuleConfig } from 'angular-oauth2-oidc';
 import { RegistrationService } from './app/registration.service';
+import { StatehandlerServiceImpl } from './app/services/state-handler.service';
+import { StatehandlerProcessorService, StatehandlerProcessorServiceImpl } from './app/services/statehandler-processor.service';
 
-const authConfig: AuthConfig = {
-    issuer: environment.oidc.issuer,
-    clientId: environment.oidc.clientId,
-    responseType: 'code',
-    scope: 'openid profile email offline_access',
-    oidc: true,
-    strictDiscoveryDocumentValidation: false,
-    showDebugInformation: true,
-
-};
-
-const authModuleConfig: OAuthModuleConfig = {
-  resourceServer: {
-    allowedUrls: ['/api/backend'],
-    sendAccessToken: true
-  }
-};
-
-function storageFactory(): OAuthStorage { return localStorage; }
-
-if(environment.production) {
+if (environment.production) {
   enableProdMode();
-} 
+}
+
+/**
+ * Initializes OIDC configuration for angular-auth-oidc-client.
+ * Called during application bootstrap to configure authentication settings.
+ */
+function initializeOidcConfiguration(): void {
+  const authService = inject(AuthService);
+  const wellknownService = inject(AuthWellknownEndpointsService);
+  const router = inject(Router);
+  const stateHandler = inject(StatehandlerServiceImpl);
+
+  // Initialize router event tracking for state preservation
+  stateHandler.initStateHandler(router);
+
+  // Load OIDC configuration from discovery endpoint
+  wellknownService.getAuthWellKnownEndPoints(environment.oidc.issuer).subscribe();
+}
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideZoneChangeDetection({eventCoalescing: true}),
-    provideOAuthClient(authModuleConfig),
-    RegistrationService,
     provideRouter(routes),
-    {
-      provide: AuthConfig,
-      useFactory: () => {
-        authConfig.redirectUri = window.location.origin + inject(PlatformLocation).getBaseHrefFromDOM() + 'auth/callback';
-        return authConfig;
+    provideHttpClient(withInterceptorsFromDi()),
+    provideOidcClient({
+      config: {
+        authority: environment.oidc.issuer,
+        clientId: environment.oidc.clientId,
+        redirectUrl: `${window.location.origin}${window.location.pathname}auth/callback`,
+        postLogoutRedirectUrl: `${window.location.origin}${window.location.pathname}`,
+        responseType: 'code',
+        scope: 'openid profile email offline_access',
+        historyCleanupOff: true,
+        autoUserInfo: true,
+        autoCleanupToken: true,
+        logLevel: environment.production ? LogLevel.None : LogLevel.Debug
       }
-    },
-    {
-      provide: OAuthStorage,
-      useFactory: storageFactory
-    },
+    }),
     AuthService,
+    RegistrationService,
     { provide: StatehandlerProcessorService, useClass: StatehandlerProcessorServiceImpl },
-      /*{
-        provide: StatehandlerService,
-        useClass: StatehandlerProcessorServiceImpl
-        },*/
-    StatehandlerServiceImpl,/*
-      provideAppInitializer(() => {
-        const rtr = inject(Router);
-        const handler = inject(StatehandlerServiceImpl);
-        handler.initStateHandler(rtr);
-        }),*/
-    provideHttpClient(withInterceptorsFromDi())
+    StatehandlerServiceImpl
   ]
-})
-  .catch(err => console.error(err));
+}).catch(err => console.error('Bootstrap error:', err));
