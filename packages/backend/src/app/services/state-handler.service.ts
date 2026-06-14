@@ -1,6 +1,6 @@
 import { Injectable, inject, OnDestroy } from '@angular/core';
 import { GuardsCheckStart, Router, RouterEvent } from '@angular/router';
-import { PublicEventsService } from 'angular-auth-oidc-client';
+import { OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
 import { Observable, Subject, throwError } from 'rxjs';
 import { filter, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import { StatehandlerProcessorService } from './statehandler-processor.service';
@@ -40,6 +40,7 @@ export class StatehandlerServiceImpl implements StatehandlerService, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject();
 
   private readonly processor: StatehandlerProcessorService = inject(StatehandlerProcessorService);
+  private readonly oidcService: OidcSecurityService = inject(OidcSecurityService);
   private readonly publicEventsService: PublicEventsService = inject(PublicEventsService);
 
   constructor() {
@@ -53,34 +54,16 @@ export class StatehandlerServiceImpl implements StatehandlerService, OnDestroy {
   private setupStateRestoration(): void {
     this.publicEventsService.registerForEvents()
       .pipe(
-        filter(event => event.type === 'ConfigLoaded' || event.type === 'NewAuthorizationResultReceived'),
-        take(1),
+        filter(event => event.type === 'CodeFlowCodeReceived' || event.type === 'AuthorizationResultReceived'),
         switchMap(() => {
-          // Extract state from the OIDC security service's state parameter
-          // This will be available after the authorization flow completes
-          return this.publicEventsService.registerForEvents().pipe(
-            filter(e => e.type === 'CodeFlowCodeReceived' || e.type === 'AuthorizationResultReceived'),
-            take(1),
-            map(() => this.extractStateFromUrl())
-          );
+          // Extract state from the URL after redirect
+          const params = new URLSearchParams(window.location.search);
+          const state = params.get('state');
+          return state ? [state] : [];
         }),
-        filter(state => state != null),
         takeUntil(this.destroy$)
       )
-      .subscribe(state => {
-        if (state != null) {
-          this.processor.restoreState(state);
-        }
-      });
-  }
-
-  /**
-   * Extracts the state parameter from the current URL.
-   * @returns The state value from the URL or null if not present
-   */
-  private extractStateFromUrl(): string | null {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('state');
+      .subscribe(state => this.processor.restoreState(state));
   }
 
   /**
