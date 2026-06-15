@@ -7,6 +7,7 @@ import { StatehandlerProcessorService, StatehandlerProcessorServiceImpl } from '
 import { StatehandlerService, StatehandlerServiceImpl } from './services/state-handler.service';
 import { AuthService } from './services/auth.service';
 import { authConfig } from './auth/auth.config';
+import {provideAuth} from 'angular-auth-oidc-client';
 
 export const appConfig: ApplicationConfig = {
   providers: [
