@@ -3,11 +3,12 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-    production: false,
-    oidc: {
-        issuer: "http://localhost:8081/realms/guc",
-        clientId: "gs_registration",
-    }
+  production: false,
+  href: "/",
+  oidc: {
+    issuer: "http://localhost:8081/realms/guc",
+    clientId: "gs_registration",
+  }
 };
 
 /*

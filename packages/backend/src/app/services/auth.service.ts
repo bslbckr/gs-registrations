@@ -1,8 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
-import { StatehandlerService } from './state-handler.service';
+import { map } from 'rxjs/operators';
 
 /**
  * Service responsible for handling OIDC authentication flows.
@@ -20,7 +19,6 @@ import { StatehandlerService } from './state-handler.service';
 })
 export class AuthService {
   private readonly oidcService: OidcSecurityService = inject(OidcSecurityService);
-  private readonly stateHandler: StatehandlerService = inject(StatehandlerService);
 
   /**
    * Observable stream of the current authentication state.
@@ -42,12 +40,8 @@ export class AuthService {
    * @param setState - Whether to create and preserve navigation state (default: true)
    * @returns Observable<void> that completes after authentication is initiated
    */
-  authenticate(setState: boolean = true): Observable<void> {
-    return setState
-      ? this.stateHandler.createState().pipe(
-          switchMap(state => this.startLogin(state))
-        )
-      : this.startLogin(undefined);
+  authenticate(): Observable<void> {
+    return this.startLogin(undefined);
   }
 
   /**

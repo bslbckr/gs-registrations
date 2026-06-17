@@ -27,7 +27,7 @@ export const authGuard: CanActivateFn = () => {
       }
 
       // Initiate login flow without preserving state (router will handle navigation)
-      authService.authenticate(false).subscribe();
+      authService.authenticate(/*false*/).subscribe();
       return false;
     })
   );

@@ -1,7 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
-
-import { StatehandlerServiceImpl } from './services/state-handler.service';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
     standalone: true,
@@ -13,10 +11,4 @@ import { StatehandlerServiceImpl } from './services/state-handler.service';
 export class AppComponent {
 
   title = 'backend';
-
-  constructor() {
-    const router = inject(Router);
-    const handler = inject(StatehandlerServiceImpl);
-    handler.initStateHandler(router);
-  }
 }
