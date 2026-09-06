@@ -10,10 +10,10 @@
     "prod:build": "ng build --aot --optimization --output-path ../api/public/backend/ --configuration production --subresource-integrity --base-href=/backend/"
   },
   "private": true,
-    "dependencies": {
-        "@angular/animations": "^20.2.14",
+  "dependencies": {
+    "@angular/animations": "^20.2.14",
     "@angular/common": "^20.2.14",
-    "@angular/compiler": "^20.2.14",
+    "@angular/compiler": "^20.3.27",
     "@angular/core": "^20.2.14",
     "@angular/forms": "^20.2.14",
     "@angular/material": "^20.2.14",
